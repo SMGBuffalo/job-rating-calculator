@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Shop Job Rating Calculator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: #1F4E78; color: white; padding: 20px; text-align: center; }
+        .header h2 { margin: 0; font-size: 1.3rem; }
+        .form-group { padding: 15px 25px; border-bottom: 1px solid #eee; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .results { padding: 20px 25px; background: #fafafa; }
+        .score { font-size: 1.4rem; font-weight: bold; color: #1F4E78; }
+        .priority { font-size: 1.1rem; font-weight: bold; margin-top: 8px; }
+        .action { font-style: italic; color: #555; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>MACHINE SHOP JOB RATING CALCULATOR</h2>
+        </div>
+        <div style="padding: 20px 25px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label>Quote / Job #</label>
+                    <input type="text" value="Q-2026-001">
+                </div>
+                <div style="flex: 1;">
+                    <label>Customer</label>
+                    <input type="text" value="Acme Machining">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Customer Importance</label>
+                <select id="cust" onchange="calculate()">
+                    <option value="25">Tier 1: Key Account / High Volume (25 pts)</option>
+                    <option value="15">Tier 2: Steady Client / Mid Volume (15 pts)</option>
+                    <option value="5">Tier 3: One-off / Unknown (5 pts)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Strategic Fit</label>
+                <select id="fit" onchange="calculate()">
+                    <option value="15">High: Core Sweet Spot - 5-Axis / Mill-Turn (15 pts)</option>
+                    <option value="10">Medium: Standard Milling / Turning (10 pts)</option>
+                    <option value="0">Low: Out of Scope / High Scrap Risk (0 pts)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Gross Profit Margin</label>
+                <select id="margin" onchange="calculate()">
+                    <option value="25">> 45% Margin (25 pts)</option>
+                    <option value="18">30% - 45% Margin (18 pts)</option>
+                    <option value="10">15% - 29% Margin (10 pts)</option>
+                    <option value="0">< 15% Margin (0 pts)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Material & Sub-Contract Risk</label>
+                <select id="mat" onchange="calculate()">
+                    <option value="15">Low Risk: Stock material, no sub-vendors (15 pts)</option>
+                    <option value="10">Med Risk: Standard material, 1 sub-vendor (10 pts)</option>
+                    <option value="0">High Risk: Exotic alloy, multi-sub vendors (0 pts)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Man Hours & Efficiency</label>
+                <select id="eff" onchange="calculate()">
+                    <option value="15">High Efficiency: Low setup / Long run (15 pts)</option>
+                    <option value="10">Standard: Moderate setup & run time (10 pts)</option>
+                    <option value="5">High Overhead: Long setup / Short run (5 pts)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Tooling & Fixturing</label>
+                <select id="tool" onchange="calculate()">
+                    <option value="10">Ready: In-house tooling & fixtures exist (10 pts)</option>
+                    <option value="5">Minor: Simple soft jaws / minor mod (5 pts)</option>
+                    <option value="0">Major: Custom tooling or complex fixture (0 pts)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Lead Time & Schedule</label>
+                <select id="lead" onchange="calculate()">
+                    <option value="15">Flexible: Long lead time > 4 wks (15 pts)</option>
+                    <option value="10">Standard: Fits normal queue 2-4 wks (10 pts)</option>
+                    <option value="15">Expedited / Rush: Rush fee paid < 2 wks (15 pts)</option>
+                    <option value="-15">Unrealistic Rush: No rush fee / Bottleneck (-15 pts)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="score" id="score">Total Score: 115 / 120 Pts</div>
+            <div class="priority" id="prio" style="color: #C00000;">Priority Level: P1: Red Hot Priority</div>
+            <div class="action" id="action">Recommended Action: Immediate expedited quote generation & priority line scheduling.</div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            let total = parseInt(document.getElementById('cust').value) +
+                        parseInt(document.getElementById('fit').value) +
+                        parseInt(document.getElementById('margin').value) +
+                        parseInt(document.getElementById('mat').value) +
+                        parseInt(document.getElementById('eff').value) +
+                        parseInt(document.getElementById('tool').value) +
+                        parseInt(document.getElementById('lead').value);
+
+            document.getElementById('score').innerText = "Total Score: " + total + " / 120 Pts";
+
+            let prio = document.getElementById('prio');
+            let action = document.getElementById('action');
+
+            if (total >= 90) {
+                prio.innerText = "Priority Level: P1: Red Hot Priority";
+                prio.style.color = "#C00000";
+                action.innerText = "Recommended Action: Immediate expedited quote generation & priority line scheduling.";
+            } else if (total >= 65) {
+                prio.innerText = "Priority Level: P2: Standard Production";
+                prio.style.color = "#2E75B6";
+                action.innerText = "Recommended Action: Quote within 24-48 hours. Schedule into standard production workflow.";
+            } else if (total >= 40) {
+                prio.innerText = "Priority Level: P3: Filler Work";
+                prio.style.color = "#D99B00";
+                action.innerText = "Recommended Action: Quote when capacity opens. Schedule during open machine downtime.";
+            } else {
+                prio.innerText = "Priority Level: P4: Low Priority / Decline";
+                prio.style.color = "#595959";
+                action.innerText = "Recommended Action: Re-price high to compensate risk, extend lead time, or decline quote.";
+            }
+        }
+        calculate();
+    </script>
+</body>
+</html>
